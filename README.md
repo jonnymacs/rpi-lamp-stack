@@ -2,6 +2,10 @@
 
 Turn your Raspberry Pi into a LAMP web server that starts on boot.
 
+This has been tested on both ARM64 Mac and AMD64 Mac laptops.
+
+AMD is much slower as expected due to emulation.
+
 ```sh
 git clone https://github.com/jonnymacs/rpi-lamp-stack
 cd rpi-lamp-stack
@@ -10,18 +14,6 @@ cd rpi-lamp-stack
 
 Use the Raspberry Pi Imager tool to install the img file located in deploy
 on an SD card or USB stick.
-
-## if you are on x86 (non ARM) chip you need to use an older Dockerfile.
-
-See [this issue](https://github.com/jonnymacs/rpi-image-gen-example/issues/1#issuecomment-2752319174) for more info
-
-You will also need to run this command in the rpi-image-gen container
-
-```bash
-$sudo su
-$mount binfmt_misc -t binfmt_misc /proc/sys/fs/binfmt_misc && echo 1 > /proc/sys/fs/binfmt_misc/status
-$exit
-```
 
 **[Watch and Like the recorded video for this project on YouTube](https://www.youtube.com/watch?v=6IwPTtk06Uk)** 
 
