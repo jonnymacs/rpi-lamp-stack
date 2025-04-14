@@ -1,0 +1,32 @@
+#!/bin/sh
+
+set -eu
+
+app_repo="https://github.com/omeka/Omeka.git"
+git_tag="151a1e90ecc14211086c67e7cc9eac9ee2616732"
+
+# trigger the systemd apache service to run on first boot
+#
+$BDEBSTRAP_HOOKS/enable-units "$1" apache2
+
+# enable avahi to broadcast the hostname
+# on the local network
+#
+$BDEBSTRAP_HOOKS/enable-units "$1" avahi-daemon
+
+# configure apache for ssl
+chroot $1 a2enmod ssl
+
+# install composer
+#
+chroot $1 php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"
+chroot $1 php -r "if (hash_file('sha384', 'composer-setup.php') === 'dac665fdc30fdd8ec78b38b9800061b4150413ff2e3b6f88543c636f7cd84f6db9189d43a81e5503cda447da73c7e5b6') { echo 'Installer verified'.PHP_EOL; } else { echo 'Installer corrupt'.PHP_EOL; unlink('composer-setup.php'); exit(1); }"
+chroot $1 php composer-setup.php --install-dir /usr/local/bin --filename composer
+chroot $1 php -r "unlink('composer-setup.php');"
+
+# install app and composer dependencies
+#
+git clone --recurse-submodules $app_repo $1/var/www/html/app
+
+chroot $1 chown -R www-data:www-data /var/www/html
+chroot $1 runuser -u www-data -- bash -c "composer install --working-dir=/var/www/html/app"

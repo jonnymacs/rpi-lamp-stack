@@ -1,0 +1,31 @@
+#!/bin/sh
+
+set -eu
+
+# configure apache mod_rewrite
+chroot $1 a2enmod rewrite
+
+# configure apache to support rewrites on localhost
+sed -i '/<\/VirtualHost>/i \
+    <Directory /var/www/html>\n\
+        Options Indexes FollowSymLinks\n\
+        AllowOverride All\n\
+        Require all granted\n\
+    </Directory>' $1/etc/apache2/sites-available/000-default.conf
+
+# additional customizations specifc to the app type
+# in this case it's omeka
+#
+chroot $1 runuser -u www-data -- bash -c "mv /var/www/html/app/.htaccess.changeme /var/www/html/app/.htaccess"
+chroot $1 runuser -u www-data -- bash -c "mv /var/www/html/app/db.ini.changeme /var/www/html/app/db.ini"
+chroot $1 runuser -u www-data -- bash -c "mv /var/www/html/app/application/config/config.ini.changeme /var/www/html/app/application/config/config.ini"
+chroot $1 chmod -R 755 /var/www/html/app/files
+
+# write db credentials to setup.php
+#
+chroot "$1" runuser -u www-data -- bash -c 'sed -i \
+   -e "s|host     = \"XXXXXXX\"|host     = \"localhost\"|g" \
+   -e "s|dbname   = \"XXXXXXX\"|dbname   = \"app_db\"|g" \
+   -e "s|username = \"XXXXXXX\"|username = \"db_user\"|g" \
+   -e "s|password = \"XXXXXXX\"|password = \"secure_password\"|g" \
+   /var/www/html/app/db.ini'

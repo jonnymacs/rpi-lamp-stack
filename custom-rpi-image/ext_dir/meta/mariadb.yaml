@@ -1,0 +1,6 @@
+---
+name: mariadb
+mmdebstrap:
+  packages:
+    - mariadb-server
+  install-recommends: false

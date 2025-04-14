@@ -1,0 +1,34 @@
+#!/bin/sh
+
+set -eu
+
+# trigger the systemd service to run on first boot
+#
+$BDEBSTRAP_HOOKS/enable-units "$1" mariadb
+
+# create the db and users now
+#
+echo "Creating Database"
+chroot $1 mysql_install_db --user=mysql --basedir=/usr --datadir=/var/lib/mysqlv
+chroot $1 mysqld_safe --user=mysql --skip-networking --skip-grant-tables &
+chroot $1 sleep 5
+chroot $1 mariadb < ../mariadb-setup/create_db.sql
+chroot $1 pkill -f mysqld
+echo "Created Database"
+chroot $1 sleep 2
+
+echo "Creating Database User"
+chroot $1 mariadbd --user=mysql --datadi=/var/lib/mysql --skip-networking &
+chroot $1 sleep 5
+chroot $1 mariadb < ../mariadb-setup/create_user.sql
+#
+# mysql_secure_installation is something to consider.
+# I don't think this is necessary as the device has no ssh
+# someone needs the device in hand to get in to the db
+# and even then they'll need the OS root user pw.
+#
+#chroot $1 mysql_secure_installation
+#
+chroot $1 pkill -f mariadbd
+echo "Created Database User"
+chroot $1 sleep 2

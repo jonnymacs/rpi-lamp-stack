@@ -1,0 +1,5 @@
+DEVICE_HOSTNAME=omeka
+device_user1=omeka
+device_user1pass=omeka
+wifi_ssid=""
+wifi_pw=

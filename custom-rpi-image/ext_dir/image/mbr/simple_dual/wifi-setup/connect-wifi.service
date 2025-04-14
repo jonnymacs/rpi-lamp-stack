@@ -1,0 +1,12 @@
+[Unit]
+Description=Configure WiFi on first boot
+After=network.target
+ConditionFirstBoot=yes
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/connect-wifi.sh
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target
