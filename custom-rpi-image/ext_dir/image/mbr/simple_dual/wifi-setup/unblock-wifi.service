@@ -6,6 +6,8 @@ After=network.target
 Type=oneshot
 ExecStart=/usr/sbin/rfkill unblock wifi
 RemainAfterExit=yes
+User=root
+Group=root
 
 [Install]
 WantedBy=multi-user.target

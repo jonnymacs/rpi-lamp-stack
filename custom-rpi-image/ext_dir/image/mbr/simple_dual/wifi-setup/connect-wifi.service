@@ -7,6 +7,8 @@ ConditionFirstBoot=yes
 Type=oneshot
 ExecStart=/usr/local/bin/connect-wifi.sh
 RemainAfterExit=yes
+User=root
+Group=root
 
 [Install]
 WantedBy=multi-user.target
